@@ -56,7 +56,19 @@ FootballLeagueDbContext context = new FootballLeagueDbContext();
 //await StronglyTypedProjection();
 
 /* Filter Based on Related Data */
-await FilteringWithRelatedData();
+//await FilteringWithRelatedData();
+
+/* Querying Views */
+await QueryView();
+
+/* Query With Raw SQL */
+//await RawSQLQuery();
+
+/* Query Stored Procedures */
+//await ExecStoredProcedure();
+
+/* RAW SQL Non-Query Commands */
+//await ExecuteNonQueryCommand();
 
 
 
@@ -197,13 +209,13 @@ async Task QueryFilters()
 async Task AddNewLeague()
 {
     //Adding a new League Object
-    var league = new League { Name = "Seria A" };
+    var league = new League { Name = "" };
     await context.Leagues.AddAsync(league);
     await context.SaveChangesAsync();
 
     //Function to add new teams related to the new league object.
-    await AddTeamsWithLeague(league);
-    await context.SaveChangesAsync();
+    //await AddTeamsWithLeague(league);
+    //await context.SaveChangesAsync();
 }
 
 async Task AddTeamsWithLeague(League league)
@@ -226,6 +238,51 @@ async Task AddTeamsWithLeague(League league)
         {
             Name = "AS Roma",
             League = league
+        },
+        new Team
+        {
+            Name = "Tivoli Gardens FC",
+            LeagueId = league.Id
+        },
+
+        new Team
+        {
+            Name = "Seba United FC",
+            LeagueId = league.Id
+        },
+
+        new Team
+        {
+            Name = "Florentina",
+            League = league
+        },
+        new Team
+        {
+            Name = "Rivoli United",
+            LeagueId = league.Id
+        },
+
+        new Team
+        {
+            Name = "Waterhouse FC",
+            LeagueId = league.Id
+        },
+
+        new Team
+        {
+            Name = "Celtics",
+            League = league
+        },
+        new Team
+        {
+            Name = "Heart of Midlothian",
+            LeagueId = league.Id
+        },
+
+        new Team
+        {
+            Name = "Dundee United",
+            LeagueId = league.Id
         }
     };
 
@@ -318,43 +375,43 @@ async Task QueryRelatedRecords()
     //    .ToListAsync();
 }
 
-async Task StronglyTypedProjection()
-{
-    var teams = await context.Teams
-        .Include(q => q.Coach)
-        .Include(q => q.League)
-        .Select(
-        q =>
-        new TeamDetail
-        {
-            Name = q.Name,
-            CoachName = q.Coach.Name,
-            LeagueName = q.League.Name,
-        }
-    ).ToListAsync();
-    foreach (var item in teams)
-    {
-        Console.WriteLine($"Team: {item.Name} | Coach: {item.CoachName} | League: {item.LeagueName}");
-    }
-}
+//async Task StronglyTypedProjection()
+//{
+//    var teams = await context.Teams
+//        .Include(q => q.Coach)
+//        .Include(q => q.League)
+//        .Select(
+//        q =>
+//        new TeamDetail
+//        {
+//            Name = q.Name,
+//            CoachName = q.Coach.Name,
+//            LeagueName = q.League.Name,
+//        }
+//    ).ToListAsync();
+//    foreach (var item in teams)
+//    {
+//        Console.WriteLine($"Team: {item.Name} | Coach: {item.CoachName} | League: {item.LeagueName}");
+//    }
+//}
 
-async Task AnonymousProjection()
-{
-    var teams = await context.Teams
-        .Include(q => q.Coach)
-        .Select(
-        q =>
-        new
-        {
-            TeamName = q.Name,
-            CoachName = q.Coach.Name
-        }
-    ).ToListAsync();
-    foreach (var item in teams)
-    {
-        Console.WriteLine($"Team: {item.TeamName} | Coach: {item.CoachName}");
-    }
-}
+//async Task AnonymousProjection()
+//{
+//    var teams = await context.Teams
+//        .Include(q => q.Coach)
+//        .Select(
+//        q =>
+//        new
+//        {
+//            TeamName = q.Name,
+//            CoachName = q.Coach.Name
+//        }
+//    ).ToListAsync();
+//    foreach (var item in teams)
+//    {
+//        Console.WriteLine($"Team: {item.TeamName} | Coach: {item.CoachName}");
+//    }
+//}
 
 async Task SelectOneProperty()
 {
@@ -369,4 +426,31 @@ async Task FilteringWithRelatedData()
     var leagues = await context.Leagues.Where(q => q.Teams.Any(x => x.Name.Contains($"juv"))).ToListAsync();
     
 
+}
+
+async Task QueryView()
+{
+    var details = await context.TeamsCoachesLeagues.ToListAsync();
+}
+
+async Task RawSQLQuery()
+{
+    var name = "AS Roma";
+    //var team1 = await context.Teams.FromSqlRaw($"Select * from Teams where name = '{name}'").Include(q => q.Coach).ToListAsync(); //Bad Practice, proned to SQL Injection
+    var team2 = await context.Teams.FromSqlInterpolated($"Select * from Teams where name = {name}").ToListAsync();
+}
+
+//async Task ExecStoredProcedure()
+//{
+//    var teamId = 3;
+//    var result = await context.Coaches.FromSqlRaw("EXEC dbo.sp_GetTeamCoach {0}", teamId).ToListAsync();
+//}
+
+async Task ExecuteNonQueryCommand()
+{
+    var teamId = 10;
+    var affectedRows = await context.Database.ExecuteSqlRawAsync("exec sp_DeleteTeamById {0}", teamId);
+
+    var teamId2 = 12;
+    var affectedRows2 = await context.Database.ExecuteSqlInterpolatedAsync($"exec sp_DeleteTeamById {teamId2}");
 }

@@ -9,14 +9,6 @@ namespace EntityFrameworkNet6.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "Name",
-                table: "Teams",
-                type: "nvarchar(450)",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
-
             migrationBuilder.CreateTable(
                 name: "Matches",
                 columns: table => new
@@ -25,8 +17,7 @@ namespace EntityFrameworkNet6.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     HomeTeamId = table.Column<int>(type: "int", nullable: false),
                     AwayTeamId = table.Column<int>(type: "int", nullable: false),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -46,12 +37,6 @@ namespace EntityFrameworkNet6.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Teams_Name",
-                table: "Teams",
-                column: "Name",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Matches_AwayTeamId",
                 table: "Matches",
                 column: "AwayTeamId");
@@ -66,18 +51,6 @@ namespace EntityFrameworkNet6.Data.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Matches");
-
-            migrationBuilder.DropIndex(
-                name: "IX_Teams_Name",
-                table: "Teams");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "Name",
-                table: "Teams",
-                type: "nvarchar(max)",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(450)");
         }
     }
 }

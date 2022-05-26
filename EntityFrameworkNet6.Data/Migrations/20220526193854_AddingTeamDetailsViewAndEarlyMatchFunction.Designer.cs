@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EntityFrameworkNet6.Data.Migrations
 {
     [DbContext(typeof(FootballLeagueDbContext))]
-    [Migration("20220525193116_AddedCoachTeamOneToOne")]
-    partial class AddedCoachTeamOneToOne
+    [Migration("20220526193854_AddingTeamDetailsViewAndEarlyMatchFunction")]
+    partial class AddingTeamDetailsViewAndEarlyMatchFunction
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -58,20 +58,11 @@ namespace EntityFrameworkNet6.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name");
-
                     b.ToTable("Leagues");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 20,
-                            Name = "Sample League"
-                        });
                 });
 
             modelBuilder.Entity("EntityFrameworkNet6.Domain.Match", b =>
@@ -113,14 +104,11 @@ namespace EntityFrameworkNet6.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("LeagueId");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
 
                     b.ToTable("Teams");
                 });

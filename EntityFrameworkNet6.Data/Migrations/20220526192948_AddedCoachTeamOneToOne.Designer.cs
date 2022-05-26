@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EntityFrameworkNet6.Data.Migrations
 {
     [DbContext(typeof(FootballLeagueDbContext))]
-    [Migration("20220525191635_AddedMatchesTable")]
-    partial class AddedMatchesTable
+    [Migration("20220526192948_AddedCoachTeamOneToOne")]
+    partial class AddedCoachTeamOneToOne
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,6 +23,30 @@ namespace EntityFrameworkNet6.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity("EntityFrameworkNet6.Domain.Coach", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TeamId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TeamId")
+                        .IsUnique()
+                        .HasFilter("[TeamId] IS NOT NULL");
+
+                    b.ToTable("Coaches");
+                });
 
             modelBuilder.Entity("EntityFrameworkNet6.Domain.League", b =>
                 {
@@ -34,20 +58,11 @@ namespace EntityFrameworkNet6.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name");
-
                     b.ToTable("Leagues");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 20,
-                            Name = "Sample League"
-                        });
                 });
 
             modelBuilder.Entity("EntityFrameworkNet6.Domain.Match", b =>
@@ -66,10 +81,6 @@ namespace EntityFrameworkNet6.Data.Migrations
 
                     b.Property<int>("HomeTeamId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -93,16 +104,22 @@ namespace EntityFrameworkNet6.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("LeagueId");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
-
                     b.ToTable("Teams");
+                });
+
+            modelBuilder.Entity("EntityFrameworkNet6.Domain.Coach", b =>
+                {
+                    b.HasOne("EntityFrameworkNet6.Domain.Team", "Team")
+                        .WithOne("Coach")
+                        .HasForeignKey("EntityFrameworkNet6.Domain.Coach", "TeamId");
+
+                    b.Navigation("Team");
                 });
 
             modelBuilder.Entity("EntityFrameworkNet6.Domain.Match", b =>
@@ -143,6 +160,9 @@ namespace EntityFrameworkNet6.Data.Migrations
             modelBuilder.Entity("EntityFrameworkNet6.Domain.Team", b =>
                 {
                     b.Navigation("AwayMatches");
+
+                    b.Navigation("Coach")
+                        .IsRequired();
 
                     b.Navigation("HomeMatches");
                 });

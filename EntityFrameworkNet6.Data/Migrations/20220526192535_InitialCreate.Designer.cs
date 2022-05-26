@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EntityFrameworkNet6.Data.Migrations
 {
     [DbContext(typeof(FootballLeagueDbContext))]
-    [Migration("20220524215341_InitialCreate")]
+    [Migration("20220526192535_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -65,12 +65,17 @@ namespace EntityFrameworkNet6.Data.Migrations
             modelBuilder.Entity("EntityFrameworkNet6.Domain.Team", b =>
                 {
                     b.HasOne("EntityFrameworkNet6.Domain.League", "League")
-                        .WithMany()
+                        .WithMany("Teams")
                         .HasForeignKey("LeagueId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("League");
+                });
+
+            modelBuilder.Entity("EntityFrameworkNet6.Domain.League", b =>
+                {
+                    b.Navigation("Teams");
                 });
 #pragma warning restore 612, 618
         }
