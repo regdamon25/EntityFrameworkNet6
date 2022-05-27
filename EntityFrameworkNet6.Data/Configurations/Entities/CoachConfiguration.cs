@@ -13,7 +13,8 @@ namespace EntityFrameworkNet6.Data.Configurations.Entities
     {
         public void Configure(EntityTypeBuilder<Coach> builder)
         {
-            builder.HasIndex(h => new { h.Name, h.TeamId}).IsUnique();
+            //builder.Property(p => p.Name).HasMaxLength(50);
+            builder.HasIndex(h => new { h.Name, h.TeamId }).IsUnique();
             builder.HasData(
                 new Coach
                 {
